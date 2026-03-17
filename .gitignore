@@ -1,0 +1,14 @@
+# binaries
+*.exe
+*.out
+*.test
+
+# Go build
+bin/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.windsurf/
