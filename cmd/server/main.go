@@ -15,7 +15,10 @@ func main() {
 		panic(err)
 	}
 
-	clientIP := ip.NextIP()
+	clientIP, err := ip.NextIP()
+	if err != nil {
+		panic(err)
+	}
 
 	serverPublicKey := "5ABgAyy7PLlR+dw971B2mwP4eiKIgdfKd+rfW7dmIlY="
 	serverIP := "127.0.0.1"
