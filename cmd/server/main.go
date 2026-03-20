@@ -2,13 +2,19 @@ package main
 
 import (
 	"fmt"
-
 	"vpn-manager/internal/config"
+	"vpn-manager/internal/db"
 	"vpn-manager/internal/ip"
 	"vpn-manager/internal/wireguard"
 )
 
 func main() {
+	// Initialize database
+	database, err := db.InitDB()
+	if err != nil {
+		panic(err)
+	}
+	// defer database.Close()
 
 	// Generate a new WireGuard key pair for the client
 	privateKey, publicKey, err := wireguard.GenerateKeyPair()
@@ -18,6 +24,11 @@ func main() {
 
 	// Allocate the next available VPN IP by scanning wg0.conf
 	clientIP, err := ip.NextIP()
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.CreateDevice(database, publicKey, clientIP)
 	if err != nil {
 		panic(err)
 	}
@@ -36,7 +47,7 @@ func main() {
 
 	// Public key of the WireGuard server (needed by the client config)
 	serverPublicKey := "5ABgAyy7PLlR+dw971B2mwP4eiKIgdfKd+rfW7dmIlY="
-	
+
 	// Endpoint clients will connect to (VirtualBox port forwarding → localhost)
 	serverIP := "127.0.0.1"
 
