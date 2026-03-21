@@ -37,3 +37,14 @@ func CreateDevice(db *sql.DB, publicKey string, vpnIP string) error {
 
 	return err
 }
+
+func DeleteDevice(db *sql.DB, publicKey string) error {
+
+	query := `
+	DELETE FROM devices
+	WHERE public_key = $1
+	`
+
+	_, err := db.Exec(query, publicKey)
+	return err
+}

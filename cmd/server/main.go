@@ -8,7 +8,7 @@ import (
 	"vpn-manager/internal/wireguard"
 )
 
-func main() {
+func main() {	
 	// Initialize database
 	database, err := db.InitDB()
 	if err != nil {
@@ -35,6 +35,19 @@ func main() {
 
 	// Register the client peer in the WireGuard server config
 	err = wireguard.AddPeer(publicKey, clientIP)
+	if err != nil {
+		panic(err)
+	}
+
+	newPublicKey := "x4NegBYbp9yxWQlbYR2plL+1PlQIWa5OKB0Yi7Dz2Es="
+
+	// Remove peer and delete device from database
+	err = wireguard.RemovePeer(newPublicKey)
+	if err != nil {
+		panic(err)
+	}
+
+	err = db.DeleteDevice(database, publicKey)
 	if err != nil {
 		panic(err)
 	}
