@@ -1,83 +1,49 @@
 package main
 
 import (
-	"fmt"
-	"vpn-manager/internal/config"
+	"net/http"
+
 	"vpn-manager/internal/db"
-	"vpn-manager/internal/ip"
-	"vpn-manager/internal/wireguard"
+	"vpn-manager/internal/service"
+
+	"github.com/gin-gonic/gin"
 )
 
-func main() {	
-	// Initialize database
+func main() {
+
 	database, err := db.InitDB()
 	if err != nil {
 		panic(err)
 	}
-	// defer database.Close()
 
-	// Generate a new WireGuard key pair for the client
-	privateKey, publicKey, err := wireguard.GenerateKeyPair()
-	if err != nil {
-		panic(err)
-	}
+	router := gin.Default()
 
-	// Allocate the next available VPN IP by scanning wg0.conf
-	clientIP, err := ip.NextIP()
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.CreateDevice(database, publicKey, clientIP)
-	if err != nil {
-		panic(err)
-	}
-
-	// Register the client peer in the WireGuard server config
-	err = wireguard.AddPeer(publicKey, clientIP)
-	if err != nil {
-		panic(err)
-	}
-
-	newPublicKey := "x4NegBYbp9yxWQlbYR2plL+1PlQIWa5OKB0Yi7Dz2Es="
-
-	// Remove peer and delete device from database
-	err = wireguard.RemovePeer(newPublicKey)
-	if err != nil {
-		panic(err)
-	}
-
-	err = db.DeleteDevice(database, publicKey)
-	if err != nil {
-		panic(err)
-	}
-
-	// Reload the WireGuard interface to apply changes
-	err = wireguard.Reload()
-	if err != nil {
-		panic(err)
-	}
-
-	// Public key of the WireGuard server (needed by the client config)
 	serverPublicKey := "5ABgAyy7PLlR+dw971B2mwP4eiKIgdfKd+rfW7dmIlY="
-
-	// Endpoint clients will connect to (VirtualBox port forwarding → localhost)
 	serverIP := "127.0.0.1"
 
-	// Generate the WireGuard client configuration file
-	clientConfig := config.GenerateClientConfig(
-		privateKey,
-		serverPublicKey,
-		serverIP,
-		clientIP,
-	)
+	// CREATE DEVICE
+	router.POST("/devices", func(c *gin.Context) {
 
-	fmt.Println("New VPN Client Created")
-	fmt.Println("-----------------------")
+		device, err := service.CreateDevice(database, serverPublicKey, serverIP)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-	fmt.Println("Client Public Key:", publicKey)
-	fmt.Println("Assigned IP:", clientIP)
+		c.JSON(http.StatusOK, device)
+	})
 
-	fmt.Println("\nClient Config:\n")
-	fmt.Println(clientConfig)
+	// GET DEVICES
+	router.GET("/devices", func(c *gin.Context) {
+
+		devices, err := db.GetDevices(database)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, devices)
+	})
+
+	router.Run(":8080")
 }

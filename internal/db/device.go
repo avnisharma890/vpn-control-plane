@@ -48,3 +48,35 @@ func DeleteDevice(db *sql.DB, publicKey string) error {
 	_, err := db.Exec(query, publicKey)
 	return err
 }
+
+func GetDevices(db *sql.DB) ([]map[string]interface{}, error) {
+
+	rows, err := db.Query("SELECT id, public_key, vpn_ip, created_at FROM devices")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var devices []map[string]interface{}
+
+	for rows.Next() {
+		var id int
+		var publicKey, vpnIP, createdAt string
+
+		err := rows.Scan(&id, &publicKey, &vpnIP, &createdAt)
+		if err != nil {
+			return nil, err
+		}
+
+		device := map[string]interface{}{
+			"id":         id,
+			"public_key": publicKey,
+			"vpn_ip":     vpnIP,
+			"created_at": createdAt,
+		}
+
+		devices = append(devices, device)
+	}
+
+	return devices, nil
+}
