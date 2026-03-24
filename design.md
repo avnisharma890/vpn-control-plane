@@ -121,3 +121,10 @@ Returns all registered VPN devices from PostgreSQL.
 
 Flow:
 Client → API → DB → JSON response
+
+### DELETE /devices/:id
+
+Deletes a VPN device.
+
+Flow:
+Request → API → DB lookup → WireGuard removal → reload → response

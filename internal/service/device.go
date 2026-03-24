@@ -53,3 +53,28 @@ func CreateDevice(database *sql.DB, serverPublicKey, serverIP string) (*DeviceRe
 		ClientConfig: clientConfig,
 	}, nil
 }
+
+func DeleteDevice(database *sql.DB, id int) error {
+
+	publicKey, err := db.GetDeviceByID(database, id)
+	if err != nil {
+		return err
+	}
+
+	err = wireguard.RemovePeer(publicKey)
+	if err != nil {
+		return err
+	}
+
+	err = db.DeleteDevice(database, publicKey)
+	if err != nil {
+		return err
+	}
+
+	err = wireguard.Reload()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

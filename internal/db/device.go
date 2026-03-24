@@ -80,3 +80,20 @@ func GetDevices(db *sql.DB) ([]map[string]interface{}, error) {
 
 	return devices, nil
 }
+
+func GetDeviceByID(db *sql.DB, id int) (string, error) {
+
+	var publicKey string
+
+	query := `
+	SELECT public_key FROM devices
+	WHERE id = $1
+	`
+
+	err := db.QueryRow(query, id).Scan(&publicKey)
+	if err != nil {
+		return "", err
+	}
+
+	return publicKey, nil
+}
