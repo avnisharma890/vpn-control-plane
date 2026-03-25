@@ -9,8 +9,8 @@ import (
 )
 
 type DeviceResponse struct {
-	PublicKey   string `json:"public_key"`
-	VPNIP       string `json:"vpn_ip"`
+	PublicKey    string `json:"public_key"`
+	VPNIP        string `json:"vpn_ip"`
 	ClientConfig string `json:"client_config"`
 }
 
@@ -48,16 +48,18 @@ func CreateDevice(database *sql.DB, serverPublicKey, serverIP string) (*DeviceRe
 	)
 
 	return &DeviceResponse{
-		PublicKey:   publicKey,
-		VPNIP:       clientIP,
+		PublicKey:    publicKey,
+		VPNIP:        clientIP,
 		ClientConfig: clientConfig,
 	}, nil
 }
 
 func DeleteDevice(database *sql.DB, id int) error {
-
 	publicKey, err := db.GetDeviceByID(database, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return err
+		}
 		return err
 	}
 
