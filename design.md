@@ -128,3 +128,12 @@ Deletes a VPN device.
 
 Flow:
 Request → API → DB lookup → WireGuard removal → reload → response
+
+## Data Modeling
+
+Replaced dynamic maps with typed structs for device representation.
+
+Benefits:
+- type safety
+- cleaner API responses
+- easier maintenance

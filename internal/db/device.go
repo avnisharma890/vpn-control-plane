@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"vpn-manager/internal/model"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -49,7 +50,7 @@ func DeleteDevice(db *sql.DB, publicKey string) error {
 	return err
 }
 
-func GetDevices(db *sql.DB) ([]map[string]interface{}, error) {
+func GetDevices(db *sql.DB) ([]model.Device, error) {
 
 	rows, err := db.Query("SELECT id, public_key, vpn_ip, created_at FROM devices")
 	if err != nil {
@@ -57,25 +58,17 @@ func GetDevices(db *sql.DB) ([]map[string]interface{}, error) {
 	}
 	defer rows.Close()
 
-	var devices []map[string]interface{}
+	var devices []model.Device
 
 	for rows.Next() {
-		var id int
-		var publicKey, vpnIP, createdAt string
+		var d model.Device
 
-		err := rows.Scan(&id, &publicKey, &vpnIP, &createdAt)
+		err := rows.Scan(&d.ID, &d.PublicKey, &d.VPNIP, &d.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
 
-		device := map[string]interface{}{
-			"id":         id,
-			"public_key": publicKey,
-			"vpn_ip":     vpnIP,
-			"created_at": createdAt,
-		}
-
-		devices = append(devices, device)
+		devices = append(devices, d)
 	}
 
 	return devices, nil
