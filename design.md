@@ -137,3 +137,10 @@ Benefits:
 - type safety
 - cleaner API responses
 - easier maintenance
+
+## Infrastructure (Terraform)
+
+- Defined Docker-based infrastructure using Terraform
+- Managed Prometheus and Grafana as declarative resources
+- Enabled reproducible observability setup
+- Eliminated manual container setup
