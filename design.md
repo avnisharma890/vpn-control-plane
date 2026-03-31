@@ -144,3 +144,11 @@ Benefits:
 - Managed Prometheus and Grafana as declarative resources
 - Enabled reproducible observability setup
 - Eliminated manual container setup
+
+## Containerization & Runtime Isolation
+
+- Containerized Go backend using multi-stage Docker build
+- Resolved container-to-host Postgres connectivity using `host.docker.internal`
+- Updated Postgres config (`listen_addresses`, `pg_hba.conf`) to allow Docker subnet access
+- Introduced graceful degradation for WireGuard operations (non-blocking failures)
+- Ensured API remains functional even without system-level dependencies inside container
