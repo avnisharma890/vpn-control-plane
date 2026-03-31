@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"fmt"
 	"vpn-manager/internal/config"
 	"vpn-manager/internal/db"
 	"vpn-manager/internal/ip"
@@ -32,12 +33,12 @@ func CreateDevice(database *sql.DB, serverPublicKey, serverIP string) (*DeviceRe
 
 	err = wireguard.AddPeer(publicKey, clientIP)
 	if err != nil {
-		return nil, err
+		fmt.Println("WARNING: WireGuard not available:", err)
 	}
 
 	err = wireguard.Reload()
 	if err != nil {
-		return nil, err
+		fmt.Println("WARNING: WireGuard not available:", err)
 	}
 
 	clientConfig := config.GenerateClientConfig(
@@ -65,7 +66,7 @@ func DeleteDevice(database *sql.DB, id int) error {
 
 	err = wireguard.RemovePeer(publicKey)
 	if err != nil {
-		return err
+		fmt.Println("WARNING: WireGuard not available:", err)
 	}
 
 	err = db.DeleteDevice(database, publicKey)
@@ -75,7 +76,7 @@ func DeleteDevice(database *sql.DB, id int) error {
 
 	err = wireguard.Reload()
 	if err != nil {
-		return err
+		fmt.Println("WARNING: WireGuard not available:", err)
 	}
 
 	return nil

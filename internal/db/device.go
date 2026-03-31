@@ -10,7 +10,7 @@ import (
 
 func InitDB() (*sql.DB, error) {
 
-	connStr := "postgres://vpnadmin:strongpassword@localhost:5432/vpnmanager"
+	connStr := "postgres://vpnadmin:strongpassword@host.docker.internal:5432/vpnmanager"
 
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
